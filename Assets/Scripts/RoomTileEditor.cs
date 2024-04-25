@@ -10,6 +10,6 @@ public class RoomTileEditor : Editor
     {
         RoomTile tile = (RoomTile)target;
 
-        EditorGUILayout.EnumPopup(WallType);
+        //EditorGUILayout.EnumPopup(WallType);
     }
 }
