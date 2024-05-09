@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2599767231386088365}
   - component: {fileID: 4180520572106773571}
   m_Layer: 0
-  m_Name: Tile RoomCorner
+  m_Name: Tile RoomCorner S-W
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -268,7 +268,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4758942791928591002, guid: 23fa4aa2f85bf3a4c9aef26f5a26465f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.5
+      value: -0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4758942791928591002, guid: 23fa4aa2f85bf3a4c9aef26f5a26465f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -342,7 +342,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4758942791928591002, guid: 23fa4aa2f85bf3a4c9aef26f5a26465f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.5
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4758942791928591002, guid: 23fa4aa2f85bf3a4c9aef26f5a26465f, type: 3}
       propertyPath: m_LocalRotation.w

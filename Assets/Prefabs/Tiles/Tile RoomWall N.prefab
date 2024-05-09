@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6051940528484951746}
   - component: {fileID: 548110242198597475}
   m_Layer: 0
-  m_Name: Tile RoomWall
+  m_Name: Tile RoomWall N
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
