@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7909470748223983877}
   - component: {fileID: 1572411057462511970}
   - component: {fileID: 9024727385664055308}
+  - component: {fileID: -4155072457489613977}
   m_Layer: 0
   m_Name: Tile Empty
   m_TagString: Untagged
@@ -186,6 +187,18 @@ MonoBehaviour:
   StopSelecting:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &-4155072457489613977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3991889996983402246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1998ef304866e742a253ffb5bc79e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1279510980626312955
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -236,7 +249,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6754525444549644655, guid: 93eb84dcd39571743919eb2610f51536, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8427375330747621956, guid: 93eb84dcd39571743919eb2610f51536, type: 3}
       propertyPath: m_Name

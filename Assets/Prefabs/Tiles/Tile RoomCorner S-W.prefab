@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5301108834462066265}
   - component: {fileID: 2599767231386088365}
   - component: {fileID: 4180520572106773571}
+  - component: {fileID: 8824307500614972730}
   m_Layer: 0
   m_Name: Tile RoomCorner S-W
   m_TagString: Untagged
@@ -188,6 +189,18 @@ MonoBehaviour:
   StopSelecting:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8824307500614972730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9178178431517117674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1998ef304866e742a253ffb5bc79e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &204971058901837114
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -238,7 +251,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6754525444549644655, guid: 93eb84dcd39571743919eb2610f51536, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8427375330747621956, guid: 93eb84dcd39571743919eb2610f51536, type: 3}
       propertyPath: m_Name
@@ -264,7 +277,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1560574095150285797, guid: 23fa4aa2f85bf3a4c9aef26f5a26465f, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4758942791928591002, guid: 23fa4aa2f85bf3a4c9aef26f5a26465f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -330,7 +343,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1560574095150285797, guid: 23fa4aa2f85bf3a4c9aef26f5a26465f, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4758942791928591002, guid: 23fa4aa2f85bf3a4c9aef26f5a26465f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -440,7 +453,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7390572015190024574, guid: 59f1bfdcfc3c1184aa1d73f4fc080c54, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
