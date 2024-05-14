@@ -12,7 +12,7 @@ public class Scaler : MonoBehaviour
     [Header("Scale Settings")]
     [SerializeField] private Vector3 minScale = new Vector3(1f, 1f, 1f);   // Minimum scale
     [SerializeField] private Vector3 maxScale = new Vector3(10f, 10f, 10f);         // Maximum scale
-    [SerializeField] private float duration = 10f;// Duration of scaling animation
+    [SerializeField] public float duration = 10f;// Duration of scaling animation
     [SerializeField] private GameObject target;
     [SerializeField] [Range(0f, 1f)] private float scaleFactor;
     public bool isBig = true;
@@ -21,7 +21,7 @@ public class Scaler : MonoBehaviour
     [SerializeField] public bool fade = true;
     [SerializeField] private Color fadeColor = Color.black;
     [SerializeField] private Image fadeImage;
-    [SerializeField] private float fadeDuration = 2f;
+    [SerializeField] public float fadeDuration = 2f;
     [SerializeField] [Range(0f, 1f)] private float fadeFactor = 0f;
     private void Update()
     {
@@ -65,7 +65,7 @@ public class Scaler : MonoBehaviour
         target.transform.localScale = targetScale;
     }
 
-    private void Fade()
+    public void Fade()
     {
         if (fade)
         {

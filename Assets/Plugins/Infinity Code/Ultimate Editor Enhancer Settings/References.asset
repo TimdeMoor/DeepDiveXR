@@ -604,8 +604,4 @@ MonoBehaviour:
   _sceneHistory:
   - name: MainScene
     path: Assets/Scenes/MainScene.unity
-  - name: Demo
-    path: Assets/Packages/AutoHand/Examples/Scenes/OpenXR/Demo.unity
-  - name: TestScene
-    path: Assets/Scenes/TestScene.unity
   _notes: []
