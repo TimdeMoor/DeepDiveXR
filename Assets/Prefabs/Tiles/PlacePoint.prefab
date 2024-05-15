@@ -176,7 +176,7 @@ MonoBehaviour:
   showPlaceSettings: 1
   startPlaced: {fileID: 0}
   placedOffset: {fileID: 8129578311961020481}
-  placeRadius: -0.5
+  placeRadius: 0.5
   radiusOffset: {x: 0, y: 0, z: 0}
   parentOnPlace: 1
   forcePlace: 0

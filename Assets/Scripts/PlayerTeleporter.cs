@@ -11,6 +11,7 @@ public class PlayerTeleporter : MonoBehaviour
     [SerializeField] private Scaler scaler;
     [SerializeField] private Transform teleportationDestination;
     [SerializeField] private MeshCollider collider;
+    [SerializeField] private GridManager grid;
 
     public InputActionProperty Abutton;
     public InputActionProperty Bbutton;
@@ -39,12 +40,14 @@ public class PlayerTeleporter : MonoBehaviour
         player.SetPosition(new Vector3(0f, 1f, 0f));
         player.maxMoveSpeed = 5;
         collider.enabled = false;
+        grid.SetColliders(true);
     }
 
     private void SetSmallPosition() {
         player.SetPosition(teleportationDestination.position);
-        player.maxMoveSpeed = 2;
+        player.maxMoveSpeed = .5f;
         collider.enabled = true;
+        grid.SetColliders(false);
     }
 
     private void Fade()

@@ -13,12 +13,12 @@ public class GridManager : MonoBehaviour
         tiles.Add(g.gameObject);
     }
 
-    public void Disable()
+    public void SetColliders(bool val)
     {
         foreach (GameObject go in tiles)
         {
-            go.GetComponent<Collider>().enabled = false;
-            go.GetComponent<Grabbable>().enabled = false;
+            go.GetComponent<Collider>().enabled = val;
+            go.GetComponent<Grabbable>().enabled = val;
         }
     }
 
