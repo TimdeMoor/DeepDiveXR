@@ -32,10 +32,10 @@ namespace Autohand {
         GrabbableHeldJoint heldJoint = null;
 
 
-        protected override void Start() {
-            base.Start();
+        protected  void Start() {
+            //base.Start();
             //heldPlaceOnly = true;
-            disableRigidbodyOnPlace = true;
+            disableRigidbodyOnPlace = false;
             parentOnPlace = true;
             forceHandRelease = false;
             makePlacedKinematic = false;
@@ -43,7 +43,7 @@ namespace Autohand {
             
         }
 
-        public override bool CanPlace(Grabbable placeObj) {
+        public override bool CanPlace(Grabbable placeObj, bool checkRoot = true) {
             if(placeObj.body == connectedGrabbable.body)
                 return false;
 
@@ -64,17 +64,17 @@ namespace Autohand {
             foreach(var hand in hands) {
                 grabPoint.Add(hand, hand.handGrabPoint);
             }
-            placeObj.DeactivateRigidbody();
 
             base.Place(placeObj);
-            placeObj.body = connectedGrabbable.body;
+
             foreach(var hand in hands) {
-                hand.BreakGrabConnection();
+                //hand.BreakGrabConnection();
+                //hand.CreateGrabConnection(placeObj, grabPoint[hand].position, grabPoint[hand].rotation, placeObj.transform.position, placeObj.transform.rotation, true);
                 hand.heldJoint.connectedBody = connectedGrabbable.body;
                 hand.heldJoint.connectedAnchor = connectedGrabbable.body.transform.InverseTransformPoint(hand.handGrabPoint.position);
-                hand.CreateGrabConnection(placeObj, grabPoint[hand].position, grabPoint[hand].rotation, placeObj.transform.position, placeObj.transform.rotation, true);
             }
 
+            placeObj.DeactivateRigidbody();
             placeObj.transform.parent = connectedGrabbable.body.transform;
             placeObj.body = connectedGrabbable.body;
 
@@ -96,7 +96,7 @@ namespace Autohand {
                 heldJoint.eventOffset = eventOffset;
                 heldJoint.OnMaxDistanceEvent = OnMaxDistanceEvent;
                 heldJoint.OnMinDistanceEvent = OnMinDistanceEvent;
-                heldJoint.Awake();
+                heldJoint.Start();
                 if(hands.Length > 0)
                     heldJoint.OnGrabbed(hands[0], placeObj);
 

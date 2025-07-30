@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ignoreSetup: 0
   usingDynamicTimestep: 1
-  quality: 3
+  useAutomaticControllerOffset: 1
+  quality: 2

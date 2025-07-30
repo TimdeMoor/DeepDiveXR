@@ -4,16 +4,6 @@ using UnityEngine;
 
 public class DungeonGrid : MonoBehaviour
 {
-    private void OnGUI()
-    {
-        if (GUILayout.Button("Generate Grid"))
-        {
-            Generate();
-        }
-    }
-
-    private void Generate()
-    {
-        Debug.Log("Done");
-    }
+    public float width;
+    public float height;
 }

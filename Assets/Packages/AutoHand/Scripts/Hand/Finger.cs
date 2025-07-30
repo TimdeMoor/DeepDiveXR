@@ -160,13 +160,12 @@ namespace Autohand{
             }
         }
 
-
         //This function smooths the finger bend so you can change the grip over a frame and wont be a jump
         void SlowBend(){
 
             var offsetValue = bendOffset + bend;
             if(currBendOffset != offsetValue)
-                currBendOffset = Mathf.MoveTowards(currBendOffset, offsetValue, 6*fingerSmoothSpeed * Time.deltaTime);
+                currBendOffset = Mathf.MoveTowards(currBendOffset, offsetValue, Mathf.Pow(Mathf.Abs(currBendOffset - offsetValue)*2, 0.5f) * Time.deltaTime * fingerSmoothSpeed * 6 + fingerSmoothSpeed * Time.deltaTime);
         }
     
 

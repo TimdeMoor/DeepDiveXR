@@ -30,6 +30,9 @@ namespace Autohand.Demo
         }
 
         private void OnEnable() {
+            if(grabbable == null)
+                grabbable = GetComponent<Grabbable>();
+
             grabbable.OnGrabEvent += OnGrabbed;
         }
 

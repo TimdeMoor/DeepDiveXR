@@ -40,14 +40,20 @@ public class XRHandOffset : MonoBehaviour {
 
     bool offsetDone = false;
     bool hasProvider = false;
+    AutoHandSettings settings;
 
     void OnEnable(){
+        settings = Resources.Load<AutoHandSettings>("AutoHandSettings");
+        if(!settings.useAutomaticControllerOffset)
+            return;
+
         InputDevices.deviceConnected += DeviceConnected;
         List<InputDevice> devices = new List<InputDevice>();
         InputDevices.GetDevices(devices);
 
-        foreach(var device in devices)
+        foreach(var device in devices) {
             DeviceConnected(device);
+        }
     }
 
     void OnDisable() {

@@ -106,7 +106,7 @@ namespace Autohand
         }
 
         /// <summary>Returns true if there is a grabbable or link, out null if there is none</summary>
-        public static bool HasGrabbable(this GameObject obj, out Grabbable grabbable)
+        public static bool HasGrabbable(this GameObject obj, out Grabbable grabbable, bool includeDisabled = false)
         {
             if (obj == null)
             {
@@ -114,13 +114,21 @@ namespace Autohand
                 return false;
             }
 
-            if (obj.CanGetComponent(out grabbable))
+
+            if(obj.CanGetComponent(out IGrabbableEvents grabbableEvents)) {
+                if(grabbableEvents.GetGrabbable() != null && (includeDisabled || grabbableEvents.GetGrabbable().enabled)) {
+                    grabbable = grabbableEvents.GetGrabbable();
+                    return true;
+                }
+            }
+
+            if (obj.CanGetComponent(out grabbable) && (includeDisabled || grabbable.enabled))
             {
                 return true;
             }
 
             GrabbableChild grabChild;
-            if (obj.CanGetComponent(out grabChild))
+            if (obj.CanGetComponent(out grabChild) && (includeDisabled || grabChild.grabParent.enabled))
             {
                 grabbable = grabChild.grabParent;
                 return true;
@@ -184,8 +192,7 @@ namespace Autohand
         }
 
         /// <summary>Autohand extension method, used so I can use TryGetComponent for newer versions and GetComponent for older versions</summary>
-        public static bool CanGetComponent<T>(this GameObject componentClass, out T component)
-        {
+        public static bool CanGetComponent<T>(this GameObject componentClass, out T component) {
 #if UNITY_2019_1 || UNITY_2018 || UNITY_2017
        var tempComponent = componentClass.GetComponent<T>();
         if(tempComponent != null){
@@ -201,6 +208,28 @@ namespace Autohand
             return value;
 #endif
         }
+
+        /// <summary>Autohand extension method, used so I can use TryGetComponent for newer versions and GetComponent for older versions</summary>
+        public static T CanFindObjectOfType<T>(bool includeInactive = false) where T : Component {
+#if UNITY_2023_1_OR_NEWER
+            return GameObject.FindFirstObjectByType<T>((includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude));
+#elif (UNITY_2020_3_OR_NEWER)
+            return GameObject.FindObjectOfType<T>(includeInactive);
+#else
+            return GameObject.FindObjectOfType<T>();
+#endif
+        }
+        /// <summary>Autohand extension method, used so I can use TryGetComponent for newer versions and GetComponent for older versions</summary>
+        public static T[] CanFindObjectsOfType<T>(bool includeInactive = false) where T : Component {
+#if UNITY_2023
+            return GameObject.FindObjectsByType<T>((includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude), FindObjectsSortMode.None);
+#elif (UNITY_2020_3_OR_NEWER)
+            return GameObject.FindObjectsOfType<T>(includeInactive);
+#else
+            return GameObject.FindObjectsOfType<T>();
+#endif
+        }
+
 
 
 
@@ -245,6 +274,22 @@ namespace Autohand
                 if (!Physics.GetIgnoreLayerCollision(currentLayer, i)) finalMask = finalMask | (1 << i);
             }
             return finalMask;
+        }
+
+        public static void AddTorqueAtPoint(this Rigidbody rigidbody, Vector3 torque, Vector3 point) {
+            // Apply the torque
+            rigidbody.AddTorque(torque, ForceMode.VelocityChange);
+
+            // Calculate the force direction (perpendicular to the torque and line from center of mass to point)
+            Vector3 forceDir = Vector3.Cross(torque, point - rigidbody.worldCenterOfMass).normalized;
+
+            // Calculate the magnitude of the force
+            Vector3 pointVelocity = rigidbody.GetPointVelocity(point);
+            Vector3 angularVelocityContribution = Vector3.Cross(rigidbody.angularVelocity, point - rigidbody.worldCenterOfMass);
+            float forceMagnitude = (pointVelocity - angularVelocityContribution).magnitude;
+
+            // Apply the force at the point
+            rigidbody.AddForceAtPosition(forceDir * forceMagnitude, point, ForceMode.VelocityChange);
         }
     }
 }

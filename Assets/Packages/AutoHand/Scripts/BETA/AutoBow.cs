@@ -10,7 +10,7 @@ namespace Autohand.Demo {
     {
         public AutoAnimation bowAnimation;
         public Grabbable bowHandleGrabbable;
-        public PlaceJoint arrowPoint;
+        public HeldPlaceJoint arrowPoint;
         [Space]
         public float drawbackRange = 0.3f;
         public float drawbackSpring = 100f;

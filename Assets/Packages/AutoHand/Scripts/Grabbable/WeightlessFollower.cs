@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Autohand {
-    [DefaultExecutionOrder(-5)]
+    [DefaultExecutionOrder(999)]
     public class WeightlessFollower : MonoBehaviour {
         [HideInInspector]
         public Transform follow1 = null;
@@ -46,7 +46,7 @@ namespace Autohand {
         internal Rigidbody body;
         Transform moveTo = null;
 
-        float startMass;
+        float startMass = 0;
         float startDrag;
         float startAngleDrag;
         float startHandMass;
@@ -55,57 +55,21 @@ namespace Autohand {
         bool useGravity;
 
 
-        Vector3 lastPos;
-        Vector3[] velocities = new Vector3[3];
-        Vector3 velocity {
-            get {
-                var vel = Vector3.zero;
-                for(int i = 0; i < velocities.Length; i++) {
-                    vel += velocities[i];
-                }
-
-                return vel / velocities.Length;
-            }
-        }
-
-
-
-        Vector3 lastRotation;
-        Vector3[] angularVelocities = new Vector3[3];
-        Vector3 angularVelocity {
-            get {
-                var vel = Vector3.zero;
-                for(int i = 0; i < angularVelocities.Length; i++) {
-                    vel += angularVelocities[i];
-                }
-
-                return vel / angularVelocities.Length;
-            }
-        }
-
-
         public void Start() {
             if(body == null)
                 body = GetComponent<Rigidbody>();
-
-            if(startMass == 0) {
-                startMass = body.mass;
-                startDrag = body.drag;
-                startAngleDrag = body.angularDrag;
-                useGravity = body.useGravity;
-            }
         }
-
-
-
-
-
-
 
 
         public virtual void Set(Hand hand, Grabbable grab) {
             if (body == null)
                 body = grab.body;
+
+            if(moveTo == null) {
+                moveTo = new GameObject().transform;
+                moveTo.name = gameObject.name + " FOLLOW POINT";
+                moveTo.parent = AutoHandExtensions.transformParent;
+            }
 
             if(!heldMoveTo.ContainsKey(hand)) {
                 heldMoveTo.Add(hand, new GameObject().transform);
@@ -117,16 +81,16 @@ namespace Autohand {
             tempTransform.rotation = hand.transform.rotation;
 
             var tempTransformChild = AutoHandExtensions.transformRulerChild;
-            tempTransformChild.position = grab.transform.position;
-            tempTransformChild.rotation = grab.transform.rotation;
+            tempTransformChild.position = grab.rootTransform.position;
+            tempTransformChild.rotation = grab.rootTransform.rotation;
 
             if(grab.maintainGrabOffset) {
-                tempTransform.position = hand.follow.position + hand.grabPositionOffset;
-                tempTransform.rotation = hand.follow.rotation * hand.grabRotationOffset;
+                tempTransform.position = hand.moveTo.position + hand.grabPositionOffset;
+                tempTransform.rotation = hand.moveTo.rotation * hand.grabRotationOffset;
             }
             else {
-                tempTransform.position = hand.follow.position;
-                tempTransform.rotation = hand.follow.rotation;
+                tempTransform.position = hand.moveTo.position;
+                tempTransform.rotation = hand.moveTo.rotation;
             }
 
             heldMoveTo[hand].parent = hand.moveTo;
@@ -150,8 +114,8 @@ namespace Autohand {
 
             if (startMass == 0) {
                 startMass = body.mass;
-                startDrag = body.drag;
-                startAngleDrag = body.angularDrag;
+                startDrag = grab.preheldDrag;
+                startAngleDrag = grab.preheldAngularDrag;
                 useGravity = body.useGravity;
             }
 
@@ -160,93 +124,43 @@ namespace Autohand {
             startHandDrag = hand.startDrag;
             startHandAngleDrag = hand.startAngularDrag;
 
-            body.mass = hand.body.mass;
-            body.drag = hand.startDrag;
-            body.angularDrag = hand.startAngularDrag;
+            body.mass = startHandMass;
+            body.drag = startHandDrag;
+            body.angularDrag = startHandAngleDrag;
             body.useGravity = false;
-
-            hand.body.mass = 0f;
-            hand.body.angularDrag = 0;
-            hand.body.drag = 0;
 
             followPositionStrength = hand.followPositionStrength;
             followRotationStrength = hand.followRotationStrength;
+
+
             maxVelocity = grab.maxHeldVelocity;
             this.grab = grab;
 
-            if(moveTo == null) {
-                moveTo = new GameObject().transform;
-                moveTo.name = gameObject.name + " FOLLOW POINT";
-                moveTo.parent = AutoHandExtensions.transformParent;
-            }
-
-            hand.OnReleased += OnHandReleased;
+            hand.OnBeforeReleased += OnHandReleased;
         }
 
 
         void OnHandReleased(Hand hand, Grabbable grab){
-            RemoveFollow(hand, heldMoveTo[hand]);
-            hand.body.mass = startHandMass;
-            hand.body.drag = startHandDrag;
-            hand.body.angularDrag = startHandAngleDrag;
+            if(heldMoveTo.ContainsKey(hand))
+                RemoveFollow(hand, heldMoveTo[hand]);
         }
 
-        int velI = 0;
         public virtual void FixedUpdate() {
             if(follow1 == null)
                 return;
-
-            //Calls physics movements
-            if (grab.ignoreWeight) {
-
-                foreach(var hand in heldMoveTo) {
-                    hand.Key.transform.position = hand.Key.handGrabPoint.position;
-                    hand.Key.body.position = hand.Key.handGrabPoint.position;
-                    hand.Key.transform.rotation = hand.Key.handGrabPoint.rotation;
-                    hand.Key.body.rotation = hand.Key.handGrabPoint.rotation;
-                    hand.Key.SetMoveTo();
-                }
-
-                MoveTo(Time.fixedDeltaTime);
-                TorqueTo(Time.fixedDeltaTime);
-
-                if(CollisionCount() > 0)
-                    noCollisionFrames = 0;
-                else
-                    noCollisionFrames++;
-
-                velI = (velI++) % velocities.Length;
-                angularVelocities[velI] = (moveTo.rotation.eulerAngles - lastRotation)/Time.fixedDeltaTime;
-                lastRotation = moveTo.rotation.eulerAngles;
-
-                velocities[velI] = (moveTo.position - lastPos) / Time.fixedDeltaTime;
-                lastPos = moveTo.position;
-
-            }
-        }
-
-
-        protected virtual void Update() {
-            if(grab.ignoreWeight) {
-                foreach(var hand in heldMoveTo) {
-                    hand.Key.transform.position = hand.Key.handGrabPoint.position;
-                    hand.Key.body.position = hand.Key.handGrabPoint.position;
-                    hand.Key.transform.rotation = hand.Key.handGrabPoint.rotation;
-                    hand.Key.body.rotation = hand.Key.handGrabPoint.rotation;
-                    hand.Key.SetMoveTo();
-                }
-
-            }
+             
+            MoveTo();
+            TorqueTo();
 
             if(grab.HeldCount() == 0)
                 Destroy(this);
         }
 
 
+
         protected void SetMoveTo() {
             if(follow1 == null || moveTo == null)
                 return;
-
 
             if(follow2 != null) {
                 moveTo.position = Vector3.Lerp(hand1.moveTo.position, hand2.moveTo.position, 0.5f);
@@ -256,34 +170,19 @@ namespace Autohand {
                 moveTo.rotation *= Quaternion.Inverse(pivot.localRotation);
             }
             else {
-                moveTo.position = follow1.position;//Vector3.MoveTowards(transform.position, follow1.position, 0.05f);
+                moveTo.position = follow1.position;
                 moveTo.rotation = follow1.rotation;
             }
         }
 
-        private void OnDrawGizmos() {
-            if(follow2 != null) {
-                Gizmos.DrawSphere(hand1.moveTo.position, 0.02f);
-                Gizmos.DrawSphere(hand2.moveTo.position, 0.02f);
-                Gizmos.DrawLine(hand1.moveTo.position, hand2.moveTo.position);
-                Gizmos.color = Color.red;
-                Gizmos.DrawLine(hand1.handGrabPoint.position, hand2.handGrabPoint.position);
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawRay(Vector3.Lerp(hand1.moveTo.position, hand2.moveTo.position, 0.5f), Vector3.Lerp(hand1.moveTo.up, hand2.moveTo.up, 0.5f));
-            }
-        }
 
-
-        protected bool ignoreMoveFrame;
-        private int noCollisionFrames;
 
         /// <summary>Moves the hand to the controller position using physics movement</summary>
-        protected virtual void MoveTo(float deltaTime) {
+        protected virtual void MoveTo() {
             if(followPositionStrength <= 0 || moveTo == null)
                 return;
 
             SetMoveTo();
-
 
 
             var movePos = moveTo.position;
@@ -296,26 +195,33 @@ namespace Autohand {
 
             void SetVelocity(float minVelocityChange) {
                 var velocityClamp = grab.maxHeldVelocity;
+                Vector3 vel = (movePos - transform.position).normalized * followPositionStrength * distance;
 
-                Vector3 vel = (movePos - transform.position).normalized * followPositionStrength * distance * Time.fixedDeltaTime * 60;
                 vel.x = Mathf.Clamp(vel.x, -velocityClamp, velocityClamp);
                 vel.y = Mathf.Clamp(vel.y, -velocityClamp, velocityClamp);
                 vel.z = Mathf.Clamp(vel.z, -velocityClamp, velocityClamp);
 
-                var towardsVel = new Vector3(
-                    Mathf.MoveTowards(body.velocity.x, vel.x, minVelocityChange + Mathf.Abs(body.velocity.x) * Time.fixedDeltaTime * 60),
-                    Mathf.MoveTowards(body.velocity.y, vel.y, minVelocityChange + Mathf.Abs(body.velocity.y) * Time.fixedDeltaTime * 60),
-                    Mathf.MoveTowards(body.velocity.z, vel.z, minVelocityChange + Mathf.Abs(body.velocity.z) * Time.fixedDeltaTime * 60)
+                var deltaOffset = Time.fixedDeltaTime / 0.011111f;
+                var inverseDeltaOffset = 0.011111f / Time.fixedDeltaTime;
+                body.drag = startDrag * inverseDeltaOffset;
+                var maxDelta = deltaOffset;
+                minVelocityChange *= deltaOffset;
+
+                body.velocity = new Vector3(
+                    Mathf.MoveTowards(body.velocity.x, vel.x, minVelocityChange + Mathf.Abs(body.velocity.x) * maxDelta),
+                    Mathf.MoveTowards(body.velocity.y, vel.y, minVelocityChange + Mathf.Abs(body.velocity.y) * maxDelta),
+                    Mathf.MoveTowards(body.velocity.z, vel.z, minVelocityChange + Mathf.Abs(body.velocity.z) * maxDelta)
                 );
-                body.velocity = towardsVel;
             }
         }
 
 
         /// <summary>Rotates the hand to the controller rotation using physics movement</summary>
-        protected virtual void TorqueTo(float deltaTime) {
-            var delta = (moveTo.rotation * Quaternion.Inverse(body.rotation));
+        protected virtual void TorqueTo() {
+            var moveRot = moveTo.rotation;
+            var delta = (moveRot * Quaternion.Inverse(body.rotation));
             delta.ToAngleAxis(out float angle, out Vector3 axis);
+
             if(float.IsInfinity(axis.x))
                 return;
 
@@ -326,13 +232,17 @@ namespace Autohand {
             Vector3 angular = multiLinear * axis.normalized;
             angle = Mathf.Abs(angle);
 
-            body.angularDrag = Mathf.Lerp(startHandDrag + 10, startHandDrag, angle) * Time.fixedDeltaTime * 60;
+            var angleStrengthOffset = Mathf.Lerp(1f, 1.5f, angle/16f);
+            var deltaOffset = Time.fixedDeltaTime / 0.011111f;
+            var inverseDeltaOffset = 0.011111f / Time.fixedDeltaTime;
+            body.angularDrag = Mathf.Lerp((startAngleDrag * 1.2f), startAngleDrag, angle/4f) * inverseDeltaOffset;
+            var maxDelta = followRotationStrength * 50f * angleStrengthOffset;
 
 
             body.angularVelocity = new Vector3(
-                Mathf.MoveTowards(body.angularVelocity.x, angular.x, followRotationStrength * 3f * Time.fixedDeltaTime * 60),
-                Mathf.MoveTowards(body.angularVelocity.y, angular.y, followRotationStrength * 3f * Time.fixedDeltaTime * 60),
-                Mathf.MoveTowards(body.angularVelocity.z, angular.z, followRotationStrength * 3f * Time.fixedDeltaTime * 60)
+                Mathf.MoveTowards(body.angularVelocity.x, angular.x, maxDelta),
+                Mathf.MoveTowards(body.angularVelocity.y, angular.y, maxDelta),
+                Mathf.MoveTowards(body.angularVelocity.z, angular.z, maxDelta)
             );
 
         }

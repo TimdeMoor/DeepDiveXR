@@ -47,13 +47,17 @@ namespace Autohand{
         HandTeleportGuard[] teleportGuards;
         AutoHandPlayer playerBody;
 
+        private void Awake() {
+            line.enabled = false;
+        }
+
         private void Start() {
-            playerBody = FindObjectOfType<AutoHandPlayer>();
+            playerBody = AutoHandExtensions.CanFindObjectOfType<AutoHandPlayer>();
             if (playerBody != null && playerBody.transform.gameObject == teleportObject)
                 teleportObject = null;
 
             lineArr = new Vector3[lineSegments];
-            teleportGuards = FindObjectsOfType<HandTeleportGuard>();
+            teleportGuards = AutoHandExtensions.CanFindObjectsOfType<HandTeleportGuard>();
         }
 
         void Update(){
@@ -89,6 +93,7 @@ namespace Autohand{
                     }
                 }
             }
+            line.enabled = true;
             line.positionCount = i;
             line.SetPositions(lineArr);
             
@@ -113,6 +118,7 @@ namespace Autohand{
 
         public void CancelTeleport(){
             line.positionCount = 0;
+            line.enabled = false;
             hitting = false;
             aiming = false;
             OnStopTeleport?.Invoke();

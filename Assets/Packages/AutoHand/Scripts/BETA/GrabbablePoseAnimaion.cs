@@ -14,7 +14,7 @@ namespace Autohand {
         [Tooltip("Determines the default hand value to activate this pose while it's being held")]
         public HeldAnimationDriver animationDriver = HeldAnimationDriver.squeeze;
 
-        [NaughtyAttributes.ShowIf("animatorDriver", HeldAnimationDriver.custom)]
+        [NaughtyAttributes.ShowIf("animationDriver", HeldAnimationDriver.custom)]
         public float customValue;
         [Space]
         [Tooltip("The pose the hand will have by default")]
@@ -31,11 +31,19 @@ namespace Autohand {
 
         public void Update() {
             var posingHandCount = fromPose.posingHands.Count + toPose.posingHands.Count;
+            if(posingHandCount == 0)
+                return;
 
-            foreach(var hand in fromPose.posingHands)
+            foreach(var hand in fromPose.posingHands) {
+                if(hand.IsGrabbing())
+                    continue;
                 Animate(hand);
-            foreach(var hand in toPose.posingHands)
+            }
+            foreach(var hand in toPose.posingHands) {
+                if(hand.IsGrabbing())
+                    continue;
                 Animate(hand);
+            }
 
             if(lastPosingHandsCount != 0 && posingHandCount == 0)
                 foreach(var autoAnim in additionalAnimations)

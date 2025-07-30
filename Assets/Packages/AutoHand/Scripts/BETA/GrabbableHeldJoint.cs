@@ -12,6 +12,7 @@ namespace Autohand
         [Tooltip("Offsets the center of this joint")]
         public Vector3 pivotOffset;
         [Tooltip("This will multiply the hands strength while holding this grabbable to give it more or less positional priority while holding this joint as a second hand (good to reduce when you dont want this joint having movement priority while being held)")]
+        [Min(0.1f)]
         public float heldMassScale = 1f;
         [Space]
         [Tooltip("The maximum distance this joint is allowed to move in the local positive x-axis")]
@@ -48,14 +49,21 @@ namespace Autohand
         Vector3 handLocalPosition;
         Vector3 localPosition;
         Vector3 localTargetPosition;
+        Vector3 localStartPosition;
 
         Grabbable grabbable;
         Vector3 localOrigin;
+        Vector3 localStartOrigin;
         Hand jointHand;
-
-        public void Awake()
+        bool grabFrame;
+        bool started = false;
+        public void Start()
         {
+            if(started)
+                return;
+
             ResetOrigin();
+
             if(grabbable == null) {
                 grabbable = GetComponent<Grabbable>();
                 grabbable.OnGrabEvent += OnGrabbed;
@@ -65,27 +73,45 @@ namespace Autohand
 
             if(xMinLimit == 0 && yMinLimit == 0 && zMinLimit == 0)
                 triggeredMinEvent = true;
+            started = true;
         }
 
         public void ResetOrigin()
         {
             localOrigin = connectedGrabbable.rootTransform.InverseTransformPoint(transform.position) + pivotOffset;
+            localStartOrigin = localOrigin;
         }
 
         internal void OnGrabbed(Hand hand, Grabbable grab)
         {
             jointHand = hand;
             hand.body.mass *= heldMassScale;
+
+            localOrigin = hand.heldJoint.connectedAnchor + pivotOffset;
+            localTargetPosition = new Vector3(
+                Mathf.Clamp(handLocalPosition.x, localOrigin.x + xMinLimit, localOrigin.x + xMaxLimit),
+                Mathf.Clamp(handLocalPosition.y, localOrigin.y + yMinLimit, localOrigin.y + yMaxLimit),
+                Mathf.Clamp(handLocalPosition.z, localOrigin.z + zMinLimit, localOrigin.z + zMaxLimit)
+            );
+
+            localTargetPosition += pivotOffset;
+            grabFrame = true;
         }
 
         void OnReleased(Hand hand, Grabbable grab)
         {
             jointHand = null;
             hand.body.mass /= heldMassScale;
+
+            localOrigin = localStartOrigin;
         }
 
         private void FixedUpdate()
         {
+            if(grabFrame) {
+                grabFrame = false;
+                return;
+            }
 
             UpdateJoint();
         }
@@ -100,9 +126,9 @@ namespace Autohand
 
         public void UpdateJoint()
         {
-            if (connectedGrabbable.HeldCount() > 0 && grabbable.HeldCount() > 0 && jointHand != null)
+            if (connectedGrabbable.HeldCount() > 0 && grabbable.HeldCount(false, false, true) > 0 && jointHand != null)
             {
-                handLocalPosition = connectedGrabbable.rootTransform.InverseTransformPoint(jointHand.moveTo.position) + pivotOffset;
+                handLocalPosition = jointHand.heldJoint.connectedBody.transform.InverseTransformPoint(jointHand.moveTo.position) + pivotOffset;
                 localPosition = jointHand.heldJoint.connectedAnchor + pivotOffset;
                 localTargetPosition = new Vector3(
                     Mathf.MoveTowards(localPosition.x, Mathf.Clamp(handLocalPosition.x, localOrigin.x + xMinLimit, localOrigin.x + xMaxLimit), 1f),
@@ -111,10 +137,16 @@ namespace Autohand
                 );
 
                 if(localPosition != localTargetPosition) {
-                    transform.position = connectedGrabbable.rootTransform.TransformPoint(localTargetPosition);
+                    //Vector3 globalTargetPosition = connectedGrabbable.rootTransform.TransformPoint(localTargetPosition - jointHand.handGrabPoint.localPosition);
+                    transform.localPosition += (localTargetPosition - localPosition); // Adjusting position with pivot offset
+                    transform.localPosition = new Vector3(
+                        Mathf.Clamp(transform.localPosition.x, localStartOrigin.x + xMinLimit, localStartOrigin.x + xMaxLimit),
+                        Mathf.Clamp(transform.localPosition.y, localStartOrigin.y + yMinLimit, localStartOrigin.y + yMaxLimit),
+                        Mathf.Clamp(transform.localPosition.z, localStartOrigin.z + zMinLimit, localStartOrigin.z + zMaxLimit)
+                    );
                     jointHand.heldJoint.connectedAnchor += (localTargetPosition - localPosition);
+                    jointHand.handGrabPoint.localPosition += (localTargetPosition - localPosition);
                 }
-
             }
             else
             {
@@ -125,16 +157,16 @@ namespace Autohand
                     Mathf.MoveTowards(localPosition.z, localOrigin.z, Time.fixedDeltaTime * zSpring)
                 );
 
-                if(localPosition != localTargetPosition)
+                if(transform.localPosition != localOrigin)
                     transform.position = connectedGrabbable.rootTransform.TransformPoint(localTargetPosition);
             }
                     
             if(OnMaxDistanceEvent != null) {
                 var localPos = connectedGrabbable.rootTransform.InverseTransformPoint(transform.position);
                 bool greaterOrEqual =
-                    localPos.x >= localOrigin.x + xMaxLimit - xMaxLimit * eventOffset - 0.001f &&
-                    localPos.y >= localOrigin.y + yMaxLimit - yMaxLimit * eventOffset - 0.001f &&
-                    localPos.z >= localOrigin.z + zMaxLimit - zMaxLimit * eventOffset - 0.001f; 
+                    localPos.x >= localStartOrigin.x + xMaxLimit - xMaxLimit * eventOffset - 0.001f &&
+                    localPos.y >= localStartOrigin.y + yMaxLimit - yMaxLimit * eventOffset - 0.001f &&
+                    localPos.z >= localStartOrigin.z + zMaxLimit - zMaxLimit * eventOffset - 0.001f; 
 
                 if(greaterOrEqual && !triggeredMaxEvent) {
                     OnMaxDistanceEvent.Invoke(jointHand, connectedGrabbable);
@@ -146,9 +178,9 @@ namespace Autohand
             if(OnMinDistanceEvent != null) {
                 var localPos = connectedGrabbable.rootTransform.InverseTransformPoint(transform.position);
                 bool lessOrEqual =
-                    localPos.x <= localOrigin.x + xMinLimit - xMinLimit * eventOffset + 0.001f &&
-                    localPos.y <= localOrigin.y + yMinLimit - yMinLimit * eventOffset + 0.001f &&
-                    localPos.z <= localOrigin.z + zMinLimit - zMinLimit * eventOffset + 0.001f;
+                    localPos.x <= localStartOrigin.x + xMinLimit - xMinLimit * eventOffset + 0.001f &&
+                    localPos.y <= localStartOrigin.y + yMinLimit - yMinLimit * eventOffset + 0.001f &&
+                    localPos.z <= localStartOrigin.z + zMinLimit - zMinLimit * eventOffset + 0.001f;
 
                 if(lessOrEqual && !triggeredMinEvent) {
                     OnMinDistanceEvent.Invoke(jointHand, connectedGrabbable);
@@ -157,7 +189,5 @@ namespace Autohand
                 }
             }
         }
-
-
     }
 }

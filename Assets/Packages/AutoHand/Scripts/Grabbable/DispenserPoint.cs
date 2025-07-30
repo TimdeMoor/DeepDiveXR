@@ -96,15 +96,18 @@ namespace Autohand {
 
                 if(dispensePool[poolIndex].HasGrabbable(out var grab)) {
                     grab.ForceHandsRelease();
-
+                    if(grab.placePoint != null)
+                        grab.placePoint.Remove();
                     if(grab.body == null)
                         grab.ActivateRigidbody();
 
                     if(!disableBody && isKinematic)
                         grab.body.isKinematic = true;
 
-                    grab.body.velocity = Vector3.zero;
-                    grab.body.angularVelocity = Vector3.zero;
+                    if(!grab.body.isKinematic) {
+                        grab.body.velocity = Vector3.zero;
+                        grab.body.angularVelocity = Vector3.zero;
+                    }
 
                     grab.OnGrabEvent += OnGrab;
                     grab.OnPlacePointAddEvent += OnPlaced;

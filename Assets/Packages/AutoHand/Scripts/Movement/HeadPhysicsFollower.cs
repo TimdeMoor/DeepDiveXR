@@ -39,25 +39,13 @@ namespace Autohand{
         internal Rigidbody body;
         CollisionTracker collisionTracker = null;
 
-        public void Start() {
-            if(collisionTracker == null) {
-                collisionTracker = gameObject.AddComponent<CollisionTracker>();
-                collisionTracker.disableTriggersTracking = true;
-            }
-            body = GetComponent<Rigidbody>();
-            gameObject.layer = LayerMask.NameToLayer(AutoHandPlayer.HandPlayerLayer);
-            transform.position = headCamera.transform.position;
-            transform.rotation = headCamera.transform.rotation;
-            headCollider = GetComponent<SphereCollider>();
-            startHeadPos = headCamera.transform.position;
-        }
-
 
         internal void Init() {
             if(collisionTracker == null) {
                 collisionTracker = gameObject.AddComponent<CollisionTracker>();
                 collisionTracker.disableTriggersTracking = true;
             }
+            body = GetComponent<Rigidbody>();
             gameObject.layer = LayerMask.NameToLayer(AutoHandPlayer.HandPlayerLayer);
             transform.position = headCamera.transform.position;
             transform.rotation = headCamera.transform.rotation;

@@ -156,7 +156,7 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
@@ -176,15 +176,22 @@ MonoBehaviour:
   showPlaceSettings: 1
   startPlaced: {fileID: 0}
   placedOffset: {fileID: 8129578311961020481}
+  shapeType: 1
   placeRadius: 0.5
-  radiusOffset: {x: 0, y: 0, z: 0}
-  parentOnPlace: 1
+  placeSize: {x: 1, y: 1, z: 1}
+  shapeOffset: {x: 0, y: 0, z: 0}
+  grabbablePlacePoint: 1
   forcePlace: 0
   forceHandRelease: 1
-  destroyObjectOnPlace: 0
+  parentOnPlace: 1
+  matchPosition: 1
+  matchRotation: 1
+  resizeOnPlace: 0
+  resizeOffset: -0.02
   disableRigidbodyOnPlace: 1
   disableGrabOnPlace: 0
   disablePlacePointOnPlace: 0
+  destroyObjectOnPlace: 0
   makePlacedKinematic: 1
   placedJointLink: {fileID: 0}
   jointBreakForce: 1000

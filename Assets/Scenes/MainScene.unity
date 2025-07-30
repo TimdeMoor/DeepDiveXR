@@ -7574,6 +7574,7 @@ GameObject:
   m_Component:
   - component: {fileID: 920922106}
   - component: {fileID: 920922107}
+  - component: {fileID: 920922108}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -7590,7 +7591,7 @@ Transform:
   m_GameObject: {fileID: 920922105}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 5, z: -10}
+  m_LocalPosition: {x: -4.55, y: 5, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7730,7 +7731,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24fedb6e55fd7a241a14e721dc9d318d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlacePointPrefab: {fileID: 0}
+  gridWidth: 11
+  gridHeight: 11
   tiles: []
+--- !u!114 &920922108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920922105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e92f7ff6df0dda246803d4bdf171f3af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  width: 0
+  height: 0
 --- !u!1001 &921921631
 PrefabInstance:
   m_ObjectHideFlags: 0

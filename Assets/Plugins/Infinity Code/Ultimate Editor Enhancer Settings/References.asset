@@ -602,6 +602,10 @@ MonoBehaviour:
     rootOnly: 0
     recursive: 1
   _sceneHistory:
+  - name: Knex
+    path: Assets/Scenes/Knex.unity
+  - name: TestScene
+    path: Assets/Scenes/TestScene.unity
   - name: MainScene
     path: Assets/Scenes/MainScene.unity
   _notes: []
